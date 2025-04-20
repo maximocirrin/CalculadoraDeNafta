@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Calculadora de Combustible</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <div class="container">
+    <h1>Calculadora de Combustible</h1>
+    <!-- Sección de precios actuales -->
+    <div id="precios" class="precios-container">
+        <p>Cargando precios...</p>
+      </div>
+    <form id="fuel-form">
+      <label for="km">Kilómetros a recorrer:</label>
+      <input type="number" id="km" placeholder="Ej: 100" required />
+
+      <label for="consumo">Consumo (L/100km):</label>
+      <input type="number" id="consumo" value="11" required />
+
+      <label for="combustible">Tipo de combustible:</label>
+      <select id="combustible">
+        <option value="super">Nafta Súper</option>
+        <option value="premium">Nafta Premium</option>
+        <option value="gasoil">Gasoil</option>
+        <option value="gasoil_premium">Gasoil Premium</option>
+      </select>
+
+      <button type="submit">Calcular</button>
+    </form>
+
+    <div id="resultado"></div>
+  </div>
+  <script src="script.js"></script>
+</body>
+</html>
