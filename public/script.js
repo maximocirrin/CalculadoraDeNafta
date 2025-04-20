@@ -1,52 +1,45 @@
-document.addEventListener('DOMContentLoaded', async () => {
-    const resultado = document.getElementById('resultado');
-    const preciosContainer = document.getElementById('precios');
-    let precios;
+const API_URL = "https://calculadoradenafta.onrender.com/api/precios";
 
-    try {
-    const res = await fetch('http://localhost:3000/api/precios');
-    precios = await res.json();
+const preciosContainer = document.getElementById("precios");
+const calcularBtn = document.getElementById("calcular");
+const resultadoDiv = document.getElementById("resultado");
 
-    // Mostrar precios en la interfaz
-    const lista = document.createElement('ul');
-    Object.entries(precios).forEach(([tipo, precio], index) => {
-      if (typeof precio !== 'number') { // Check if it's not a number
-        precio = parseFloat(precio);     // Attempt to convert it to a number
-        if (isNaN(precio)) {             // Verify that the conversion was successful
-          console.error("Error: precio no es un numero en la posicion", index, "con valor",precio); //Log the error
-          return; // Skip to the next element
-        }
-      }
+let precios = {};
 
-      const item = document.createElement('li');
-      precio = precio.toFixed(2); // Now you can safely call toFixed()
-      item.textContent = `${tipo}: $${precio}`;
-      lista.appendChild(item);
-    });
-    preciosContainer.innerHTML = '<h2>Precios actuales</h2>';
-    preciosContainer.appendChild(lista);
-    } catch (err) {
-    console.error('Error al cargar precios:', err);
-    preciosContainer.textContent = 'No se pudieron cargar los precios. Intenta más tarde.';
+async function obtenerPrecios() {
+  try {
+    const response = await fetch(API_URL);
+    const data = await response.json();
+    precios = data;
+    mostrarPrecios(data);
+  } catch (error) {
+    preciosContainer.innerHTML = "Error al obtener precios de combustibles.";
+    console.error("Error al obtener precios:", error);
+  }
+}
+
+function mostrarPrecios(data) {
+  preciosContainer.innerHTML = "<h3>Precios actuales:</h3>";
+  for (const [tipo, precio] of Object.entries(data)) {
+    const p = document.createElement("p");
+    p.textContent = `${tipo}: $${precio} por litro`;
+    preciosContainer.appendChild(p);
+  }
+}
+
+calcularBtn.addEventListener("click", () => {
+  const kms = parseFloat(document.getElementById("kms").value);
+  const consumo = parseFloat(document.getElementById("consumo").value) || 11;
+  const tipo = document.getElementById("tipo").value;
+
+  if (isNaN(kms) || kms <= 0 || !precios[tipo]) {
+    resultadoDiv.textContent = "Por favor completá todos los datos correctamente.";
     return;
-    }
+  }
 
-    document.getElementById('fuel-form').addEventListener('submit', (e) => {
-    e.preventDefault();
-
-    const km = parseFloat(document.getElementById('km').value);
-    const consumo = parseFloat(document.getElementById('consumo').value);
-    const tipo = document.getElementById('combustible').value;
-
-    if (isNaN(km) || isNaN(consumo) || km <= 0 || consumo <= 0) {
-        resultado.textContent = 'Por favor, ingresa valores válidos.';
-        return;
-    }
-
-    const litrosNecesarios = (km * consumo) / 100;
-    const precioLitro = precios[tipo];
-    const costoTotal = litrosNecesarios * precioLitro;
-
-    resultado.textContent = `Costo estimado: $${costoTotal.toFixed(2)}`;
-    });
+  const litros = (kms / 100) * consumo;
+  const costo = litros * precios[tipo];
+  resultadoDiv.textContent = `Vas a gastar aproximadamente $${costo.toFixed(2)} (${litros.toFixed(1)} litros).`;
 });
+
+obtenerPrecios();
